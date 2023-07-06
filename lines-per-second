@@ -1,0 +1,29 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+filename=$1
+check_interval=$2
+
+if [[ ! -f $filename ]]; then
+    echo "$filename does not exist"
+    exit 1
+fi
+if [[ -z $check_interval ]]; then
+    echo "Must provide a check_interval as 2nd arg"
+    exit 1
+fi
+
+prev=$(wc -l $filename | awk '{print $1}')
+while true; do
+    sleep $check_interval
+    lines=$(wc -l $filename | awk '{print $1}')
+    diff=$(python3 -c "print($lines - $prev)")
+    persecond=$(python3 -c "print($diff / $check_interval)")
+    if [[ $persecond -gt "0" ]]; then
+        seconds_per=$(python3 -c "print('{:.6f}'.format(1.0 / $persecond))")
+    else
+        seconds_per="undefined"
+    fi
+    echo "New lines: $diff ($persecond lines/second, $seconds_per seconds/line)"
+    prev=$lines
+done
