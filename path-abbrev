@@ -1,0 +1,41 @@
+#!/usr/bin/env python3 
+import os
+import sys
+
+if len(sys.argv) > 1:
+    p_orig = sys.argv[1]
+    # print(f"using argv: {list(sys.argv)}")
+else:
+    p_orig = os.getcwd()
+
+if len(sys.argv) > 2:
+    length_limit = int(sys.argv[2])
+else:
+    length_limit = 20
+
+segments = p_orig.split("/")
+if segments[0] == '':
+    segments = segments[1:]
+segments_out = []
+for i, segment in enumerate(segments):
+    # print(f"{segment=}")
+    if i == len(segments) - 1:
+        segments_out.append(segment)
+    elif len(segment):
+        segments_out.append(segment[0])
+
+out = ""
+if p_orig.startswith("/"):
+    out = "/"
+
+for i, segment in reversed(list(enumerate(segments_out))):
+    try_out = out + "/".join(segments_out)
+    # print(f"{try_out=}, {segments[i]=}, {segments_out[i]=}")
+    if (len(try_out) + len(segments[i])) < length_limit:
+        segments_out[i] = segments[i]
+    else:
+        break
+
+out += "/".join(segments_out)
+
+print(out)
